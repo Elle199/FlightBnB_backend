@@ -7,6 +7,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.ejb.Stateless;
@@ -15,6 +16,7 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,7 +24,7 @@ import org.jsoup.nodes.Element;
 @Stateless
 public class FBBean {
 
-   public JsonArray getFlights(String place) {
+   public JsonArray getFlights(String place, String dDate, String rDate) {
       String pageData = ""; //Will contain the page gotten through HtmlUnit
       String className; //Will contain main class name
       String classEnding = ""; //Will contain class ending
@@ -34,7 +36,7 @@ public class FBBean {
          webClient.getOptions().setJavaScriptEnabled(true);
          webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 
-         HtmlPage page = webClient.getPage(String.format("https://www.google.com/flights/#search;f=%s;d=2017-12-03;r=2017-12-07;mc=e", place)); //Gets page :P
+         HtmlPage page = webClient.getPage(String.format("https://www.google.com/flights/#search;f=%s;d=%s;r=%s;mc=e", place, dDate, rDate)); //Gets page :P
          System.out.println("Load time: " + page.getWebResponse().getLoadTime());
          webClient.waitForBackgroundJavaScript(25 * page.getWebResponse().getLoadTime()); //Waits for 25x response time to make sure page is fully loaded
 
@@ -91,20 +93,26 @@ public class FBBean {
       return flights.build();
    }
 
-   public JsonObject getBnB(String url) {
-      System.out.println("2");
+   public JsonArray getBnB(String url) {
       try {
-         System.out.println("1");
-         System.out.println(Runtime.getRuntime().exec("C:\\Users\\maxangman\\AppData\\Roaming\\npm\\node_modules\\phantomjs-prebuilt\\lib\\phantom\\bin\\phantomjs.exe C:\\Users\\maxangman\\Documents\\HTML-CSS\\#Projects#\\Hemsida\\js\\getAirbnb.js").waitFor(2, TimeUnit.MINUTES));
-         BufferedReader bnbFile = new BufferedReader(new FileReader("C:\\Users\\maxangman\\AppData\\Roaming\\NetBeans\\8.2\\config\\GF_4.1.1\\domain1\\config\\output.json"));
-         System.out.println(bnbFile);
+         System.out.println(Runtime.getRuntime().exec("D:\\flightBnB\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe D:\\flightBnB\\getAirbnb.js").waitFor(2, TimeUnit.MINUTES));
+         BufferedReader bnbFile = new BufferedReader(new FileReader("D:\\flightBnB\\output.json"));
+         StringBuilder sb = new StringBuilder();
+         String line;
+         while((line = bnbFile.readLine()) != null){
+            sb.append(line);
+         }
+         JsonReader jsonReader = Json.createReader(new StringReader(sb.toString()));
+         JsonArray bnbArray = jsonReader.readArray();
+         jsonReader.close();
+         return bnbArray;
       } catch (Exception e) {
          System.out.println(e.getMessage());
+         return null;
       }
-      return null;
    }
 
-   //Extracts wanted information from privided elment
+   //Extracts wanted information from privided elment for getFlights
    public static JsonObject getFlight(Document doc, String targetClass, int i) {
       JsonObjectBuilder cFlight = Json.createObjectBuilder();
 
@@ -149,7 +157,7 @@ public class FBBean {
       return flight;
    }
 
-   //Extracts ending of class name
+   //Extracts ending of class name for getFlights
    public static String getClassValue(String elmntClass, String lastValue) {
       String lastClass = "";
       try {
@@ -173,7 +181,7 @@ public class FBBean {
          //if the String is the correct length save the value
          if (elmntClass.length() == 2) {
             lastClass = elmntClass;
-            if (lastClass.equals("rb")) {
+            if (lastClass.equals("rb") || lastClass.equals("Zb")) {
                lastClass = lastValue;
             }
          }

@@ -17,8 +17,8 @@ public class FBService {
    @GET
    @Path("flights")
    @Produces(MediaType.APPLICATION_JSON)
-   public Response getFlights(@QueryParam("place") String place){
-      return Response.ok(fBBean.getFlights(place)).build();
+   public Response getFlights(@QueryParam("place") String place, @QueryParam("depart") String dDate, @QueryParam("return") String rDate){
+      return Response.ok(fBBean.getFlights(place, dDate, rDate)).build();
    }
    
    @GET
