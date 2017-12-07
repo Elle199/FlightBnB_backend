@@ -23,8 +23,8 @@ public class FBService {
    
    @GET
    @Path("bnb")
-   @Produces(MediaType.APPLICATION_JSON)
-   public Response getEvents(@QueryParam("filter") String filter) {
-      return Response.ok(fBBean.getBnB(filter)).build();
+   @Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
+   public Response getEvents(@QueryParam("place") String filter, @QueryParam("in") String inDate, @QueryParam("out") String outDate) {
+      return Response.ok(fBBean.getBnB(filter, inDate, outDate)).build();
    }   
 }

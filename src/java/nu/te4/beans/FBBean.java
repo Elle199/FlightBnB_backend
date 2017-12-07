@@ -37,8 +37,10 @@ public class FBBean {
          webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 
          HtmlPage page = webClient.getPage(String.format("https://www.google.com/flights/#search;f=%s;d=%s;r=%s;mc=e", place, dDate, rDate)); //Gets page :P
+         System.out.println("Place: " + place + "\nDepart: " + dDate
+                 + "\nReturn: " + rDate);
          System.out.println("Load time: " + page.getWebResponse().getLoadTime());
-         webClient.waitForBackgroundJavaScript(25 * page.getWebResponse().getLoadTime()); //Waits for 25x response time to make sure page is fully loaded
+         webClient.waitForBackgroundJavaScript(60 * page.getWebResponse().getLoadTime()); //Waits for 25x response time to make sure page is fully loaded
 
          className = page.getByXPath("//div[@id='root']").get(0).toString();
          className = className.substring(className.indexOf('c'));
@@ -93,19 +95,24 @@ public class FBBean {
       return flights.build();
    }
 
-   public JsonArray getBnB(String url) {
+   public JsonArray getBnB(String place, String dDate, String rDate) {
       try {
-         System.out.println(Runtime.getRuntime().exec("D:\\flightBnB\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe D:\\flightBnB\\getAirbnb.js").waitFor(2, TimeUnit.MINUTES));
-         BufferedReader bnbFile = new BufferedReader(new FileReader("D:\\flightBnB\\output.json"));
-         StringBuilder sb = new StringBuilder();
-         String line;
-         while((line = bnbFile.readLine()) != null){
-            sb.append(line);
+         boolean pageState = Runtime.getRuntime().exec(String.format("C:\\fligthBnB\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe C:\\fligthBnB\\getAirbnb.js %s %s %s", place, dDate, rDate)).waitFor(2, TimeUnit.MINUTES);
+         if (pageState != false) {
+            BufferedReader bnbFile = new BufferedReader(new FileReader("C:\\Users\\maxangman\\AppData\\Roaming\\NetBeans\\8.2\\config\\GF_4.1.1\\domain1\\config\\output.json"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = bnbFile.readLine()) != null) {
+               sb.append(line);
+            }
+            JsonReader jsonReader = Json.createReader(new StringReader(sb.toString()));
+            JsonArray bnbArray = jsonReader.readArray();
+            jsonReader.close();
+            return bnbArray;
+         } else {
+            return null;
          }
-         JsonReader jsonReader = Json.createReader(new StringReader(sb.toString()));
-         JsonArray bnbArray = jsonReader.readArray();
-         jsonReader.close();
-         return bnbArray;
+         //System.out.println(Runtime.getRuntime().exec("C:\\fligthBnB\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe C:\\fligthBnB\\getAirbnb.js").waitFor(2, TimeUnit.MINUTES));
       } catch (Exception e) {
          System.out.println(e.getMessage());
          return null;
