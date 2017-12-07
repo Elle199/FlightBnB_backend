@@ -6,7 +6,7 @@ for the frontend to function as intended.
 Some the backend does require some setup to function and this is due to
 file paths not being consistent between operating systems and server versions.
 We used GlassFish Server 4.1 and 4.1.1 which treated paths in two different ways.
-#### Google Flight
+### Google Flight
 In the `getFlights()` method there is only really one thing to change and
 that is totally optional.<br>On line 41 you'll find `webClient.waitForBackgroundJavaScript(60 * page.getWebResponse().getLoadTime());`
 and the static value here is a multiplyer to wait before trying to access the
@@ -14,7 +14,7 @@ rest of the information on the page, values returned from `getWebResponse()` is
 in milliseconds. This is because there is no way to wait for background
 scripts in `HTMLUnit` that we could find, and this page loads its content
 dynamicly through scripts when the page is opened.
-#### AirBnB
+### AirBnB
 The `getBnB()` requires you to define the path to `phantom.exe`,
 which is provided in the backend repository, and the provided `getAirbnb.js`
 file which both are located in `phantomjs/`. You have to gett the `jquery.min.js` in the same folder as
