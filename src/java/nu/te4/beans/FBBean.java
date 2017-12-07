@@ -37,8 +37,6 @@ public class FBBean {
          webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 
          HtmlPage page = webClient.getPage(String.format("https://www.google.com/flights/#search;f=%s;d=%s;r=%s;mc=e", place, dDate, rDate)); //Gets page :P
-         System.out.println("Place: " + place + "\nDepart: " + dDate
-                 + "\nReturn: " + rDate);
          System.out.println("Load time: " + page.getWebResponse().getLoadTime());
          webClient.waitForBackgroundJavaScript(60 * page.getWebResponse().getLoadTime()); //Waits for 25x response time to make sure page is fully loaded
 
